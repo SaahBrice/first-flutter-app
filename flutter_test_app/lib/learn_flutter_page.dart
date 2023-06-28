@@ -1,50 +1,37 @@
 import 'package:flutter/material.dart';
+import 'http_service.dart';
+import 'post_model.dart';
 
-class LearnFlutterPgae extends StatefulWidget {
-  const LearnFlutterPgae({super.key});
+class LearnFlutterPage extends StatelessWidget {
+  final HttpService httpService = HttpService();
 
-  @override
-  State<LearnFlutterPgae> createState() => _LearnFlutterPgaeState();
-}
+  LearnFlutterPage({super.key});
 
-class _LearnFlutterPgaeState extends State<LearnFlutterPgae> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('learning flutter'),
-        leading: IconButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            icon: const Icon(Icons.arrow_back_ios)),
+        title: const Text("Posts"),
       ),
-      body: Column(
-        children: [
-          Image.asset('images/image1.jpg'),
-          const SizedBox(
-            height: 20,
-          ),
-          const Divider(
-            height: 20,
-            color: Colors.red,
-          ),
-          Container(
-            margin: const EdgeInsets.all(10.0),
-            padding: const EdgeInsets.all(10.0),
-            color: Colors.grey,
-            width: double.infinity,
-            child: const Center(
-              child: Text(
-                'This is my text',
-                style: TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
-              ),
-            ),
-          ),
-          ElevatedButton(onPressed: (){print('Elevated button pressed');}, child: const Text('Elevated button')),
-          OutlinedButton(onPressed: (){print('Elevated button pressed');}, child: const Text('Elevated button')),
-          TextButton(onPressed: (){print('Elevated button pressed');}, child: const Text('Elevated button')),
-        ],
+      body: FutureBuilder(
+        future: httpService.getPosts(),
+        builder: (BuildContext context, AsyncSnapshot<List<Post>> snapshot) {
+          if (snapshot.hasData) {
+            List<Post>? posts = snapshot.data;
+            return ListView(
+              children: posts!
+                  .map(
+                    (Post post) => ListTile(
+                      title: Text(post.title),
+                      subtitle: Text("${post.userId}"),
+                    ),
+                  )
+                  .toList(),
+            );
+          } else {
+            return const Center(child: CircularProgressIndicator());
+          }
+        },
       ),
     );
   }
